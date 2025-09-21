@@ -1,0 +1,43 @@
+# Visual Studio / VS Code
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# Build / bin / obj
+bin/
+obj/
+
+# Database files (ignore DB except for migrations if needed)
+*.db
+*.db-shm
+*.db-wal
+
+# Logs and temp files
+*.log
+Thumbs.db
+Desktop.ini
+
+# Node / npm / Expo folders
+node_modules/
+.expo/
+
+# Ignore personal or OS folders
+*.DS_Store
+*.tmp
+*.bak
+
+# Only track your project source code and essential config
+!**/*.cs
+!**/*.csproj
+!**/*.sln
+!wwwroot/
+!Views/
+!Models/
+!Controllers/
+!Migrations/
+!appsettings.json
+!Program.cs
+!Startup.cs

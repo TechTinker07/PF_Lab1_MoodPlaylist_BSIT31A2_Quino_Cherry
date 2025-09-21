@@ -1,0 +1,131 @@
+﻿@model MoodPlaylist.SQLite.Repository.Models.Playlist
+
+@functions {
+    // Converts YouTube URL (short or regular) to embed URL
+    public string GetEmbedUrl(string url)
+    {
+        if (string.IsNullOrEmpty(url)) return "";
+
+        // Short link youtu.be
+        if (url.Contains("youtu.be"))
+        {
+            var videoId = url.Split('/').Last().Split('?')[0];
+            return $"https://www.youtube.com/embed/{videoId}";
+        }
+
+        // Regular watch link
+        if (url.Contains("watch?v="))
+        {
+            var videoId = url.Split("watch?v=")[1].Split('&')[0];
+            return $"https://www.youtube.com/embed/{videoId}";
+        }
+
+        // If already embed or unknown, return as is
+        return url;
+    }
+}
+
+<div class="container py-4">
+    <h2 class="text-gradient">@Model.Name 🎵</h2>
+    <p>@Model.Description</p>
+
+    <!-- Songs List -->
+    <h5>Songs</h5>
+    <div class="row g-3">
+        @foreach (var song in Model.Songs)
+        {
+            <div class="col-md-6">
+                <div class="card bg-dark text-white rounded-3 shadow-sm">
+                    <div class="card-body">
+                        <h6>@song.Title</h6>
+
+                        @if (!string.IsNullOrEmpty(song.LocalFilePath))
+                        {
+                            if (song.LocalFilePath.EndsWith(".mp3") || song.LocalFilePath.EndsWith(".wav"))
+                            {
+                                <audio controls class="w-100">
+                                    <source src="@song.LocalFilePath" type="audio/mpeg" />
+                                    Your browser does not support the audio element.
+                                </audio>
+                            }
+                            else if (song.LocalFilePath.EndsWith(".mp4") || song.LocalFilePath.EndsWith(".webm"))
+                            {
+                                <div class="ratio ratio-16x9">
+                                    <video controls>
+                                        <source src="@song.LocalFilePath" type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            }
+                        }
+                        else if (!string.IsNullOrEmpty(song.Url))
+                        {
+                            <div class="ratio ratio-16x9">
+                                <iframe src="@GetEmbedUrl(song.Url)"
+                                        title="@song.Title"
+                                        allowfullscreen></iframe>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Rick Roll fallback -->
+                            <div class="ratio ratio-16x9">
+                                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                                        title="Rick Roll"
+                                        allowfullscreen></iframe>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Add Song Form -->
+    <div class="mt-4">
+        <h5>Add New Song</h5>
+        <form asp-controller="Playlist" asp-action="AddSong" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="PlaylistId" value="@Model.Id" />
+
+            <div class="mb-2">
+                <input type="text" name="Title" class="form-control" placeholder="Song title" required>
+            </div>
+
+            <div class="mb-2">
+                <input type="url" name="Url" class="form-control" placeholder="YouTube URL (optional)">
+            </div>
+
+            <div class="mb-2">
+                <input type="file" name="file" class="form-control" accept=".mp3,.wav,.mp4,.webm">
+                <small class="text-muted">Upload MP3, WAV, MP4, or WEBM file</small>
+            </div>
+
+            <button type="submit" class="btn btn-gradient rounded-3">Add Song</button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .text-gradient {
+        background: linear-gradient(45deg, #ff4d6d, #6a5af9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(45deg, #6a5af9, #ff4d6d);
+        border: none;
+        color: white;
+    }
+
+        .btn-gradient:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+    body {
+        background: #121212;
+        color: #fff;
+    }
+</style>
